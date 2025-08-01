@@ -1,0 +1,36 @@
+HS Code (Harmonized System Code)
+o Item Name
+o Quantity
+o Unit Price/Amount
+o Company/Brand Name
+o Category Selection: E
+
+
+
+
+app.get('/items/search', async (req, res) => {
+  try {
+    const query = {};
+
+    if (req.query.name) {query.name = req.query.name}
+    if (req.query.brand) {query.brand = req.query.brand}
+    if (req.query.category) {query.category = req.query.category}
+
+    const items = await ItemModel.find(query);
+    
+    res.json(items);
+  } catch (err) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
+
+
+
+HEAR YE HEAR YE 
+
+product can be created 
+sale can be created 
+need to actually have sale affect the product
+sale query works but need to test with items already in 
