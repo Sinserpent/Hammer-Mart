@@ -1,107 +1,34 @@
-// controllers/importController.js
-import { processExcelFile } from '../utils/extractService.js';
-import { createProduct, findProductByHSCode } from '../utils/exProductModel.js';
-import { validateImportData } from '../utils/validators.js';
+import Product from '../models/productModel.js';
+import { extractDataFromExcel } from '../utils/extract.js';
 
-const importExcelData = async (req, res) => {
+export const uploadProductExcel = async (req, res) => {
   try {
-    // Check if file was uploaded
-    if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        message: 'No Excel file provided'
-      });
-    }
+    let { fieldMappings } = req.body;
+    const file = req.file;
 
-    // Check if column mapping JSON was provided
-    if (!req.body.columnMapping) {
-      return res.status(400).json({
-        success: false,
-        message: 'Column mapping JSON is required'
-      });
-    }
+    if (!file) return res.status(400).json({ message: 'Excel file is required' });
+    if (!fieldMappings) return res.status(400).json({ message: 'fieldMappings is required' });
 
-    let columnMapping;
-    try {
-      columnMapping = JSON.parse(req.body.columnMapping);
-    } catch (error) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid JSON format for column mapping'
-      });
-    }
-
-    // Validate column mapping structure
-    const validationResult = validateImportData(columnMapping);
-    if (!validationResult.isValid) {
-      return res.status(400).json({
-        success: false,
-        message: validationResult.message
-      });
-    }
-
-    // Process the Excel file
-    const excelData = await processExcelFile(req.file.buffer, columnMapping);
-
-    // Import data to database
-    const importResults = {
-      total: excelData.length,
-      imported: 0,
-      skipped: 0,
-      errors: []
-    };
-
-    for (let i = 0; i < excelData.length; i++) {
-      const rowData = excelData[i];
-      
+    // Parse fieldMappings if it's a JSON string
+    if (typeof fieldMappings === 'string') {
       try {
-        // Skip if missing required fields (HScode or itemName)
-        if (!rowData.HScode || !rowData.itemName) {
-          importResults.skipped++;
-          importResults.errors.push({
-            row: i + 2, // +2 because Excel starts at 1 and we skip header
-            message: 'Missing required fields (HScode or itemName)'
-          });
-          continue;
-        }
-
-        // Check if product already exists
-        const existingProduct = await findProductByHSCode(rowData.HScode);
-        if (existingProduct) {
-          importResults.skipped++;
-          importResults.errors.push({
-            row: i + 2,
-            message: `Product with HScode ${rowData.HScode} already exists`
-          });
-          continue;
-        }
-
-        // Create the product
-        await createProduct(rowData);
-        importResults.imported++;
-
-      } catch (error) {
-        importResults.errors.push({
-          row: i + 2,
-          message: error.message
-        });
+        fieldMappings = JSON.parse(fieldMappings);
+      } catch (err) {
+        return res.status(400).json({ success: false, message: 'Invalid JSON format in fieldMappings' });
       }
     }
 
-    res.status(200).json({
-      success: true,
-      message: 'Import completed',
-      results: importResults
-    });
+    const requiredFields = ['HScode', 'productCategory', 'brand', 'itemName', 'stock', 'sold', 'rate'];
+    const missing = requiredFields.filter(field => !(field in fieldMappings));
+    if (missing.length > 0)
+      return res.status(400).json({ success: false, message: `Missing required field mappings: ${missing.join(', ')}` });
 
-  } catch (error) {
-    console.error('Import error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to import Excel data',
-      error: error.message
-    });
+    const extractedData = extractDataFromExcel(file.buffer, fieldMappings);
+    const saved = await Product.insertMany(extractedData);
+
+    res.status(201).json({ success: true, message: `${saved.length} products saved`, data: saved });
+  } catch (err) {
+    console.error('[uploadProductExcel Error]', err.message);
+    res.status(500).json({ success: false, message: err.message });
   }
 };
-
-export { importExcelData };

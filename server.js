@@ -5,7 +5,6 @@ import connectDB from './config/db.js';
 import { fetchData } from './controllers/dataController.js'; 
 import salesRoutes from './routes/salesRoute.js'
 import productRoutes from './routes/productRoutes.js'
-import { errorHandler, notFound } from './middleware/errorHandler.js';
 import extractToDB from './routes/extractRoutes.js'
 
 dotenv.config();
@@ -29,10 +28,6 @@ app.use('/api/products', productRoutes);
 app.use('/api/sales', salesRoutes);
 
 app.use('/api/extract', extractToDB)
-
-app.use(notFound);
-app.use(errorHandler);
-
 
 
 

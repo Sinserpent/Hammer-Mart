@@ -6,7 +6,8 @@ const productSchema = new mongoose.Schema({
   brand: { type: String, required: true, trim: true },
   itemName: { type: String, trim: true },
   stock: { type: Number, required: true, min: 0, default: 0 },
-  sold: { type: Number, default: 0, min: 0 }
+  sold: { type: Number, default: 0, min: 0 },
+  rate: { type: Number, default: 0, min: 0 }
 }, { timestamps: true });
 
 const Product = mongoose.model('Product', productSchema);
