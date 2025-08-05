@@ -1,0 +1,2 @@
+Time to First Byte: %{time_starttransfer}\n
+Total time: %{time_total}\n
