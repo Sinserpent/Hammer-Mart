@@ -16,13 +16,14 @@ export const uploadToCloudinaryController = async (req, res, next) => {
       return res.status(400).json({ error: 'Invalid JSON string' });
     }
 
-    const originalBody = JSON.parse(req.body.data)
 
-
+    console.log("got here");
+    
     parsedData.image = result.secure_url;
     req.body = parsedData;
-
+    
     next();
+    console.log("got here 2");
 
   } catch (err) {
     res.status(500).json({ error: 'Upload failed' });

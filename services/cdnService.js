@@ -1,4 +1,4 @@
-import cloudinary from '../cloudinary/cloudinarySetup.js';
+import cloudinary from '../cloudinary/cloudinary.setup.js';
 import streamifier from 'streamifier';
 
 export const streamUploadService = (fileBuffer) => {
