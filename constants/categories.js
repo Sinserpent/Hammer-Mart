@@ -15,3 +15,4 @@ export const category = {
   FootWear : "Foot/wear",
   Others : "Others"
 }
+

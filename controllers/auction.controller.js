@@ -1,31 +1,32 @@
-import {Auction,Bid} from '../models/auction.model.js';
+  import { Auction } from '../models/auction.model.js';
 
-export const createAuctionController = async (req, res, next) => {
-  try {
-    const existing = await Auction.findOne({ name: req.body.sku });
+  export const createAuctionController = async (req, res, next) => {
+    try {
+      // Just trust whatever comes from req.body
+      const auction = new Auction(req.body);
+      await auction.save();
 
-    if (existing) {
-      return res.status(409).json({ error: 'Auction already exists' });
+      res.status(201).json({ message: 'Auction created', auction });
+    } catch (err) {
+      next(err);
     }
+  };
 
-    const auction = new Auction(req.body);
-    await auction.save();
+  export const getAllAuctionIds = async (req, res, next) => {
+    try {
+      const auctions = await Auction.find({}, '_id'); // only return IDs if you prefer
+      res.status(200).json(auctions);
+    } catch (err) {
+      next(err);
+    }
+  };
 
-    
-    res.status(201).json({ message: 'Auction created', auction });
-
-  } catch (err) {
-    next(err);
-  }
-
-};
-
-  export const getAllAuctions = async (req, res) => {
-   
-  try {
-    const auctions = await Auction.find();
-    res.status(200).json(auctions);
-  } catch (err) {
-    res.status(500).json({ message: "Failed to fetch auctions", error: err.message });
-  }
-};
+  export const getAuctionById = async (req, res, next) => {
+    try {
+      const auction = await Auction.findById(req.params.id);
+      if (!auction) return res.status(404).json({ error: 'Auction not found' });
+      res.status(200).json(auction);
+    } catch (err) {
+      next(err);
+    }
+  };

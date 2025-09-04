@@ -1,2 +1,6 @@
 Time to First Byte: %{time_starttransfer}\n
 Total time: %{time_total}\n
+
+curl -X POST http://localhost:3000/api/notifications/test/auction_bid/admin \
+  -H "Content-Type: application/json" \
+  -d '{"email": "sajidsafi817@gmail.com"}'
