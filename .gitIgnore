@@ -4,3 +4,5 @@ dist/
 *.log
 Hammer-Mart
 temp
+certs
+aliexpress-token.json
