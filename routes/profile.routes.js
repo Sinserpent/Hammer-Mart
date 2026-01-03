@@ -3,7 +3,7 @@ import express from "express";
 import { upload } from "../middleware/multer.config.js";
 import { uploadToCloudinaryController } from "../controllers/cloudinary.controller.js";
 import { updateUserImageController, updateUserProfileController } from "../controllers/user.profile.controller.js";
-import { updateAdminImageController } from "../controllers/admin.profile.controller.js";
+import { updateAdminImageController,updateAdminProfileController } from "../controllers/admin.profile.controller.js";
 
 const router = express.Router();
 
@@ -15,7 +15,7 @@ router.post(
 );
 
 router.post(
-  "/admin",
+  "/admin/image",
   upload.array("profileImage",1),
   uploadToCloudinaryController,
   updateAdminImageController 
@@ -23,5 +23,6 @@ router.post(
 
 
 router.put("/update-profile", updateUserProfileController);
+router.put("/admin/update-profile", updateAdminProfileController);
 
 export default router;
