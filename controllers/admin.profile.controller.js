@@ -34,37 +34,62 @@ export const updateAdminImageController = async (req, res) => {
   }
 };
 
+//export const updateAdminProfileController = async (req, res) => {
+//  try {
+//    const token = req.cookies.admin_token;
+//    if (!token) return res.status(401).json({ error: "No token provided" });
+
+//    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+//    const adminId = decoded.id;
+
+//    const admin = await User.findById(adminId);
+//    if (!admin) return res.status(404).json({ error: "Admin not found" });
+
+//    const { fullName } = req.body;
+//    if (!fullName) return res.status(400).json({ error: "Full name is required" });
+
+//    const updatedAdmin = await User.findByIdAndUpdate(
+//      adminId,
+//      { fullName },
+//      {
+//        new: true,
+//        runValidators: true,
+//      }
+//    );
+
+//    return res.json({
+//      message: "Admin profile updated successfully",
+//      admin: {
+//        _id: updatedAdmin._id,
+//        fullName: updatedAdmin.fullName,
+//        email: updatedAdmin.email,
+//        role: updatedAdmin.role
+//      },
+//    });
+//  } catch (err) {
+//    return res.status(500).json({ error: err.message });
+//  }
+//};
+
 export const updateAdminProfileController = async (req, res) => {
   try {
-    const token = req.cookies.admin_token;
-    if (!token) return res.status(401).json({ error: "No token provided" });
+
+    const token = req.cookies?.admin_token;
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const adminId = decoded.id;
 
-    const admin = await User.findById(adminId);
-    if (!admin) return res.status(404).json({ error: "Admin not found" });
-
+    const admin = await Admin.findById(decoded.id);
     const { fullName } = req.body;
-    if (!fullName) return res.status(400).json({ error: "Full name is required" });
 
-    const updatedAdmin = await User.findByIdAndUpdate(
-      adminId,
+    const updatedAdmin = await Admin.findByIdAndUpdate(
+      decoded.id,
       { fullName },
-      {
-        new: true,
-        runValidators: true,
-      }
+      { new: true, runValidators: true }
     );
 
     return res.json({
       message: "Admin profile updated successfully",
-      admin: {
-        _id: updatedAdmin._id,
-        fullName: updatedAdmin.fullName,
-        email: updatedAdmin.email,
-        role: updatedAdmin.role
-      },
+      admin: updatedAdmin,
     });
   } catch (err) {
     return res.status(500).json({ error: err.message });

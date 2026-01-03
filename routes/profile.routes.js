@@ -16,7 +16,7 @@ router.post(
 
 router.post(
   "/admin/image",
-  upload.array("profileImage",1),
+  upload.array("image",1),
   uploadToCloudinaryController,
   updateAdminImageController 
 );
